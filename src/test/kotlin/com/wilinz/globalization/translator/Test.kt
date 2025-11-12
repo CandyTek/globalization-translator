@@ -15,6 +15,7 @@ import java.io.StringReader
 class Test {
 
     @Test
+    @org.junit.Ignore("Requires network connection")
     fun testGoogleTranslator() {
         val result = GoogleTranslator().translate(listOf("تحويل الإخراج إلى Ascii (يمكن إلغاء تحديد Java 9 وما فوق)"), "auto", "en")
         println(result)
@@ -39,6 +40,7 @@ class Test {
     }
 
     @Test
+    @org.junit.Ignore("Requires network connection and valid file path")
     fun testTranslateProperties() {
         PropertiesTranslator.translate(
             translator = GoogleTranslator(),

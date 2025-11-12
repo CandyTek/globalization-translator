@@ -4,10 +4,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -212,7 +212,7 @@ open class TranslateDialog(
             modifier = Modifier.fillMaxSize()
                 .padding(10.dp)
         ) {
-            val state = rememberLazyListState()
+            val state = rememberLazyGridState()
             LazyVerticalGrid(GridCells.Adaptive(150.dp), state = state) {
                 itemsIndexed(targetLanguages) { index, item ->
                     CheckboxWithLabel(

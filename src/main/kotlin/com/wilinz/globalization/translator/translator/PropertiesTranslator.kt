@@ -46,14 +46,22 @@ object PropertiesTranslator {
             onEachSuccess = { index, language, properties ->
                 val filename = PropertiesUtil.getFilenameByBaseName(baseFilename, language)
                 val applicationManager = ApplicationManager.getApplication()
+                // Use CountDownLatch to wait for file write completion without blocking EDT
+                val latch = java.util.concurrent.CountDownLatch(1)
                 applicationManager.invokeLater {
-                    applicationManager.runWriteAction {
-                        val file = resourceDir.findChild(filename) ?: resourceDir.createChildData(null, filename)
-                        file.getOutputStream(null).use { out ->
-                            properties.store(out, isEncodeUnicode, Commentary)
+                    try {
+                        applicationManager.runWriteAction {
+                            val file = resourceDir.findChild(filename) ?: resourceDir.createChildData(null, filename)
+                            file.getOutputStream(null).use { out ->
+                                properties.store(out, isEncodeUnicode, Commentary)
+                            }
                         }
+                    } finally {
+                        latch.countDown()
                     }
                 }
+                // Wait for file write to complete before proceeding to next translation
+                latch.await()
                 onEachSuccess?.invoke(index, language)
             },
             onEachError = onEachError

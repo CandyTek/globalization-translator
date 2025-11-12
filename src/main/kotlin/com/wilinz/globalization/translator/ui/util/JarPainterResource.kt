@@ -1,21 +1,17 @@
 package com.wilinz.globalization.translator.ui.util
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.ResourceLoader
-import androidx.compose.ui.res.painterResource
-import java.io.InputStream
+import androidx.compose.ui.res.loadSvgPainter
+import androidx.compose.ui.unit.Density
 
-@OptIn(ExperimentalComposeUiApi::class)
-object JavaResourceLoader : ResourceLoader {
-    override fun load(resourcePath: String): InputStream {
-        return this.javaClass.classLoader.getResourceAsStream(resourcePath)!!
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun javaPainterResource(resourcePath: String): Painter {
-    return painterResource(resourcePath, JavaResourceLoader)
+    return remember(resourcePath) {
+        val resourceStream = object {}.javaClass.classLoader.getResourceAsStream(resourcePath)
+            ?: throw IllegalArgumentException("Resource $resourcePath not found")
+
+        loadSvgPainter(resourceStream, Density(1f))
+    }
 }

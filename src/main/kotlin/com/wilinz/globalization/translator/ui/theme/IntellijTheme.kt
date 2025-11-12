@@ -10,13 +10,14 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.intellij.openapi.project.Project
+import com.intellij.ide.ui.LafManager
+import com.intellij.ide.ui.laf.darcula.DarculaLookAndFeelInfo
 import com.wilinz.globalization.translator.ui.theme.WidgetTheme
-import org.intellij.datavis.r.inlays.components.GraphicsManager
 
 @Composable
 fun IntellijTheme(project: Project, content: @Composable () -> Unit) {
     val isDarkMode = try {
-        GraphicsManager.getInstance(project)?.isDarkModeEnabled ?: false
+        LafManager.getInstance().currentLookAndFeel is DarculaLookAndFeelInfo
     } catch (t: Throwable) {
         false
     }

@@ -27,7 +27,7 @@ private fun calculate(a: Long, b: String): Long {
     var g = a
     for (c in 0..b.length - 2 step 3) {
         val d = b[c + 2]
-        val e = if ('a' <= d) (d - 87).toInt() else d.toString().toInt()
+        val e = if ('a' <= d) (d - 87).code else d.toString().toInt()
         val f = if ('+' == b[c + 1]) g.ushr(e) else g shl e
         g = if ('+' == b[c]) g + f and (Int.MAX_VALUE.toLong() * 2 + 1) else g xor f
     }

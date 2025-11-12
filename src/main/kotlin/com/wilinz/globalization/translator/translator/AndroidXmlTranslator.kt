@@ -51,19 +51,27 @@ object AndroidXmlTranslator {
             onEachSuccess = { index, newDocument, language ->
                 val dirname = LanguageUtil.androidLanguageDirMap[language]!!
                 val applicationManager = ApplicationManager.getApplication()
+                // Use CountDownLatch to wait for file write completion without blocking EDT
+                val latch = java.util.concurrent.CountDownLatch(1)
                 applicationManager.invokeLater {
-                    applicationManager.runWriteAction {
-                        val languageDir =
-                            resourceDir.findChild(dirname) ?: resourceDir.createChildDirectory(null, dirname)
-                        val stringsFile = languageDir.findChild(filename) ?: languageDir.createChildData(null, filename)
-                        stringsFile.getOutputStream(null).use { out ->
-                            val xmlWriter = XMLWriter(out, OutputFormat.createPrettyPrint()).apply {
-                                isEscapeText = false
+                    try {
+                        applicationManager.runWriteAction {
+                            val languageDir =
+                                resourceDir.findChild(dirname) ?: resourceDir.createChildDirectory(null, dirname)
+                            val stringsFile = languageDir.findChild(filename) ?: languageDir.createChildData(null, filename)
+                            stringsFile.getOutputStream(null).use { out ->
+                                val xmlWriter = XMLWriter(out, OutputFormat.createPrettyPrint()).apply {
+                                    isEscapeText = false
+                                }
+                                xmlWriter.write(newDocument.addCommentToTop(Commentary))
                             }
-                            xmlWriter.write(newDocument.addCommentToTop(Commentary))
                         }
+                    } finally {
+                        latch.countDown()
                     }
                 }
+                // Wait for file write to complete before proceeding to next translation
+                latch.await()
                 onEachSuccess?.invoke(index, language)
             },
             onEachStart = onEachStart,
