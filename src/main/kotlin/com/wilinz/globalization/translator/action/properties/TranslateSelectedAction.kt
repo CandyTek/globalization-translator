@@ -1,5 +1,6 @@
 package com.wilinz.globalization.translator.action.properties
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -9,6 +10,9 @@ import org.codejive.properties.Properties
 import java.io.StringReader
 
 class TranslateSelectedAction : AnAction() {
+	override fun getActionUpdateThread(): ActionUpdateThread {
+		return ActionUpdateThread.BGT
+	}
     override fun actionPerformed(e: AnActionEvent) {
         val file = CommonDataKeys.VIRTUAL_FILE.getData(e.dataContext) ?: return
         val editor = e.getData(PlatformDataKeys.EDITOR) ?: return

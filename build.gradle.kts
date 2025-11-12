@@ -5,13 +5,10 @@ import org.commonmark.parser.Parser as MarkdownParser
 import java.io.Reader
 
 plugins {
-    // id("org.jetbrains.intellij") version "1.17.3"
-    id("org.jetbrains.intellij") version "1.17.4"
-	// id("org.jetbrains.intellij.platform") version "2.10.4"
-	// id("org.jetbrains.intellij.platform") version "2.0.0"
+	id("org.jetbrains.intellij.platform") version "2.10.2"
+	id("org.jetbrains.kotlin.jvm") version "2.2.21"
 
     java
-    kotlin("jvm")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
     id("idea")
@@ -22,24 +19,18 @@ group = "com.wilinz.globalization"
 version = "1.1.0"
 
 repositories {
-		maven { url = uri("https://maven.aliyun.com/repository/google") }
-		maven { url = uri("https://maven.aliyun.com/repository/central") }
-		maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
     maven("https://jitpack.io")
-    maven("https://plugins.gradle.org/m2/")
-    // mavenCentral()
-    google()
-	}
+    mavenCentral()
+	google()
+	intellijPlatform {
+        defaultRepositories()
+    }
+}
 
 configurations.all { exclude("xml-apis", "xml-apis") }
 
 buildscript {
     repositories {
-		maven { url = uri("https://maven.aliyun.com/repository/google") }
-		maven { url = uri("https://maven.aliyun.com/repository/central") }
-		maven { url = uri("https://maven.aliyun.com/repository/jcenter") }
-		maven { url = uri("https://maven.aliyun.com/repository/public") }
 		maven { url = uri("https://jitpack.io") }
 		google()
 		mavenLocal()
@@ -52,6 +43,14 @@ buildscript {
 }
 
 dependencies {
+    intellijPlatform {
+		intellijIdeaCommunity("2025.2.1")
+		bundledPlugin("com.intellij.java")
+		bundledPlugin("com.intellij.gradle")
+		bundledPlugin("org.jetbrains.kotlin")
+		pluginVerifier()
+    }
+
     implementation(compose.desktop.currentOs)
     implementation(compose.material)
     implementation(compose.foundation)
@@ -60,55 +59,42 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
     implementation("com.google.code.gson:gson:2.10")
-    implementation("com.github.wilinz:java-properties:1.0.7")
-    implementation("com.github.dom4j:dom4j:version-2.1.1")
+    implementation(files("libs/java-properties-1.0.7.jar"))
+    implementation(files("libs/dom4j-version-2.1.1.jar"))
     testImplementation(kotlin("test"))
 }
 
-// See https://github.com/JetBrains/gradle-intellij-plugin/
-intellij {
-    // version.set("2021.3") // not support
-    // version.set("2022.1.1")
-    // version.set("2022.2") // plugin its ok
-    // version.set("2022.3") // plugin its ok
-    // version.set("2023.1.1") // plugin its ok
-    // version.set("2023.3.2") // plugin its ok
-    version.set("2024.2.4") // plugin its ok
-    // version.set("2025.2.1") // too new, runIde has issues
-    // version.set("2025.1") // too new, unstable
-    // version.set("2025.1.2") // 
-    type.set("IC")
-    plugins.set(
-        listOf(
-            // "org.jetbrains.compose.intellij.platform:0.1.0",
-            // "org.jetbrains.kotlin"
-        )
-    )
+kotlin {
+	jvmToolchain(21)
+}
+
+// See https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
+intellijPlatform {
+		buildSearchableOptions = false
+    pluginConfiguration {
+        name = "GlobalizationTranslator"
+
+        ideaVersion {
+            sinceBuild = "250"
+            untilBuild = provider { null }
+        }
+
+        description = getDescription("description.md")
+        changeNotes = provider { changelog.getLatest().toHTML() }
+    }
 }
 
 tasks {
     withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
-        // sourceCompatibility = "17"
-        // targetCompatibility = "17"
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-            languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
-            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+            languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
+            apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_9)
         }
-    }
-    patchPluginXml {
-        sinceBuild.set("202")  // IntelliJ 2024.2+
-        untilBuild.set("250")     // No upper limit
-        pluginDescription.set(getDescription("description.md"))
-        changeNotes.set(provider { changelog.getLatest().toHTML() })
-    }
-    // Skip buildSearchableOptions for compatibility with newer IDE versions
-    buildSearchableOptions {
-        enabled = false
     }
 }
 

@@ -1,5 +1,6 @@
 package com.wilinz.globalization.translator.action.android
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -8,7 +9,11 @@ import com.wilinz.globalization.translator.util.isStringsXmlFile
 import org.dom4j.io.SAXReader
 
 class TranslateAction : AnAction() {
-    override fun actionPerformed(e: AnActionEvent) {
+	override fun getActionUpdateThread(): ActionUpdateThread {
+		return ActionUpdateThread.BGT
+	}
+
+	override fun actionPerformed(e: AnActionEvent) {
         val file = CommonDataKeys.VIRTUAL_FILE.getData(e.dataContext) ?: return
         androidActionPerformed(
             e = e,
