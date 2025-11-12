@@ -87,6 +87,10 @@ open class TranslateDialog(
     override fun createCenterPanel(): JComponent = setCenterPanel()
 
     protected fun setCenterPanel(options: @Composable (RowScope.() -> Unit)? = null): ComposePanel {
+        // Fix for Android Studio: Force software rendering to avoid Direct3D issues
+        // This prevents UnsatisfiedLinkError with Skiko's Direct3DSwingRedrawer
+        System.setProperty("skiko.renderApi", "SOFTWARE")
+
         return ComposePanel().apply {
             setBounds(0, 0, 1000, 600)
             setContent {
